@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-Fri Feb 04 11:50:54 PST 2022:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-017e-c64a-20eb-000010700000 
+Sat Feb 05 23:10:19 PST 2022:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-017e-cdde-82ec-000008134ab8 
 on database directory C:\Users\weple\IdeaProjects\Project1\metastore_db with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@368239c8 
 Loaded from file:/C:/Users/weple/AppData/Local/Coursier/cache/v1/https/repo1.maven.org/maven2/org/apache/derby/derby/10.14.2.0/derby-10.14.2.0.jar
 java.vendor=Amazon.com Inc.

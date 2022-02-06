@@ -1,7 +1,7 @@
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SparkSession, functions}
 
-import scala.Console.{BLACK, CYAN_B, RESET, YELLOW_B, println}
+import scala.Console.{BLACK, CYAN_B, GREEN, RESET, YELLOW, YELLOW_B, println}
 import scala.collection.convert.ImplicitConversions.`list asScalaBuffer`
 import scala.io.StdIn.readLine
 
@@ -17,7 +17,7 @@ object project1 extends App {
   //branch_x tables column: "product", "branch"
   //cons_x tables column: "product", "consumer"
   //column name is case sensitive in spark.sql statement!
-   val showt=spark.sql("show tables").show
+
    val df1 = spark.sql("select * from branch_a where branch='Branch1'" )
   //branchA+branch1
    val df2 = spark.sql("select product,sum(consumer) as sumcon from consa group by product")
@@ -88,9 +88,43 @@ def scenario1:Unit={
     spark.sql("select * from aview").show
   }
   def scenario5:Unit={
+    spark.sql("Alter table product_part set tblproperties('Comment'='this is a comment', 'note'='This is a note')")
+    spark.sql("Show tblproperties product_part").show(10)
+    val del=spark.sql("select * from product_part")
+    del.show()
+   // del.write.saveAsTable("deleting")
+   // spark.sql("delete from deleting where product='Special_Espresso'").show
+    // "DELETE is only supported with v2 tables." issue
 
   }
+  def scenario6a:Unit= {
+    val df16 = spark.sql("Select * from consa union select * from consb union select * from consc")
+  // df16 is the combined df from consumers count a,b,c
+    val df17 = df16.groupBy("product").sum().sort(sum("consumer").desc)
+  // df17 is sum for each product in descending order
+    val df18 = df17.withColumn("brew",split(col("product"),"_").getItem(0)).withColumn("flavor",split(col("product"),"_").getItem(1)).drop("product")
+    df18.show
+  //df18 split product into brew and flavor
+    val df21=df18.groupBy("brew").sum().sort(desc("sum(sum(consumer))"))
+    df21.show
+    val df22=df18.groupBy("flavor").sum().sort(desc("sum(sum(consumer))"))
+    df22.show
+    println(s"${GREEN}Conclusion: The 'cappuccino' is the best selling flavor with huge statistic significance, while the 'Large' is the best selling brew without statistic significance.${RESET}")
+    df21.write.option("header","true").csv("output/scenario6a/brew/")
+    df22.write.option("header","true").csv("output/scenario6a/flavor/")
 
+  }
+  def scenario6b:Unit={
+    val df19 = spark.sql("Select * from branch_a union select * from branch_b union select * from branch_c")
+    //df19 is the combined df from branch a,b,c
+    val df20 = df19.groupBy("branch").count().sort(desc("count"))
+    df20.show
+    df19.groupBy("product").count().sort(desc("count")).show
+    println(s"${YELLOW}Disclaimer: Due to the ambiguity of the conscount data, total consumers for each branch cannot be calculated because the same beverage can come from more than one branch, and the proportion of that beverage consumption from a certain branch is unknown.${RESET}" )
+    println(s"${GREEN}Conclusion: The branch7 sells the most types of beverages and branch1 sells the least types of beverages.${RESET}")
+    df20.write.option("header","true").csv("output/scenario6b")
+
+  }
 
   //spark.sql("create database project1")
   //spark.sql("CREATE TABLE ConsC (product STRING, consumer INT) row format delimited fields terminated by ','")
@@ -100,7 +134,8 @@ def scenario1:Unit={
     //Beginning of the program
   println(f"${CYAN_B}${BLACK} Welcome to the Coffee shop query database, please make queries....${RESET}\n")
 
-    var loop1=1
+
+  var loop1=1
     while(loop1 == 1) {
       println(s"\nPlease select scenario below:")
       println("Press 1 for Problem Scenario 1\nWhat is the total number of consumers for Branch1?.")
@@ -114,8 +149,10 @@ def scenario1:Unit={
       println("Press 5 for Problem Scenario 5")
       println("""Alter the table properties to add "note","comment"""")
       println("Remove a row from the any Scenario.")
-      println("Press 6 for Problem Scenario 6\nAdd future query")
-      println("Press 7 to end")
+      println("Press 6 for Problem Scenario 6a\nAdd future query")
+      println("Press 7 for Problem Scenario 6b\nAdd future query")
+
+      println("Press 8 to end")
       var i = readLine().toInt
       i match {
         case 1 =>scenario1
@@ -126,9 +163,14 @@ def scenario1:Unit={
           Thread.sleep(5000)
         case 4 =>scenario4
           Thread.sleep(5000)
-        case 5 =>
-        case 6 =>
-        case 7 => loop1 = 0
+        case 5 =>scenario5
+          Thread.sleep(5000)
+        case 6 =>scenario6a
+          Thread.sleep(5000)
+        case 7 =>scenario6b
+          Thread.sleep(5000)
+
+        case 8 => loop1 = 0
           println(f"${YELLOW_B}${BLACK}Thanks for using this program, good bye!${RESET}")
 
       }
