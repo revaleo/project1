@@ -1,10 +1,11 @@
+//project1
+
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{SparkSession, functions}
 
 import scala.Console.{BLACK, CYAN_B, GREEN, RESET, YELLOW, YELLOW_B, println}
 import scala.collection.convert.ImplicitConversions.`list asScalaBuffer`
 import scala.io.StdIn.readLine
-
 
 object project1 extends App {
     System.setProperty("hadoop.home.dir", "c:/winutils")
@@ -44,6 +45,8 @@ object project1 extends App {
 def scenario1:Unit={
   println("The total customers for branch1 is:"+total1)
   println("The total customers for branch2 is:"+total2)
+  readLine("Press ENTER key to continue...")
+
 }
 
   //scen2 Q1,Q2,Q3
@@ -56,7 +59,9 @@ def scenario1:Unit={
   println("The most consumed beverage on Branch1 is:" + mostbev)
   println("The least consumed beverage on Branch2 is:" + leastbev)
   println("The average consumed beverage on Branch2 is:" + avgbev)
-}
+    readLine("Press ENTER key to continue...")
+
+  }
   //scen3
   //there is  no branch10, and branch1 only in branch_a, branch8 only in branch_B, nothing in branch_c)
   //likewise, there is no branch4 or 7 from Branch_A, 7 in B, 4 and 7 in C
@@ -77,24 +82,29 @@ def scenario1:Unit={
   def scenario3:Unit={
     println("The products available both in branch 1 and 8 (no branch10) are:\n" + df11.select("branch_a.product").collectAsList.mkString)
     println("The common beverages available in Branch4 and Branch7 are:\n" + df15.select("branch_b.product").collectAsList.mkString)
+    readLine("Press ENTER key to continue...")
+
   }
   //Scen4
   def scenario4:Unit={
     //df11.select("branch_b.branch","branch_b.product").write.partitionBy("product").saveAsTable("product_part")
     //partitioned table already created for df11, only showing the partitioned table
     spark.sql("select * from product_part").show
+    spark.sql("show partitions product_part").show()
     //creating view for df15 and showing
     df15.createOrReplaceTempView("Aview")
     spark.sql("select * from aview").show
+    readLine("Press ENTER key to continue...")
+
   }
   def scenario5:Unit={
     spark.sql("Alter table product_part set tblproperties('Comment'='this is a comment', 'note'='This is a note')")
     spark.sql("Show tblproperties product_part").show(10)
-    val del=spark.sql("select * from product_part")
-    del.show()
+    spark.sql("select * from product_part").show()
+    spark.sql("select * from product_part").filter(!(col("product")==="Special_Espresso")).show()
    // del.write.saveAsTable("deleting")
    // spark.sql("delete from deleting where product='Special_Espresso'").show
-    // "DELETE is only supported with v2 tables." issue
+    readLine("Press ENTER key to continue...")
 
   }
   def scenario6a:Unit= {
@@ -109,9 +119,13 @@ def scenario1:Unit={
     df21.show
     val df22=df18.groupBy("flavor").sum().sort(desc("sum(sum(consumer))"))
     df22.show
+    val df23=df18.groupBy("brew").pivot("flavor").sum()
+    df23.show()
+    //d23 is the cross/pivot of brew and flavor
     println(s"${GREEN}Conclusion: The 'cappuccino' is the best selling flavor with huge statistic significance, while the 'Large' is the best selling brew without statistic significance.${RESET}")
-    df21.write.option("header","true").csv("output/scenario6a/brew/")
-    df22.write.option("header","true").csv("output/scenario6a/flavor/")
+    df23.write.option("header","true").csv("output/scenario6a/")
+    println("Brew/flavor table is created at 'output/scenarios6a/'!")
+    readLine("Press ENTER key to continue...")
 
   }
   def scenario6b:Unit={
@@ -120,9 +134,10 @@ def scenario1:Unit={
     val df20 = df19.groupBy("branch").count().sort(desc("count"))
     df20.show
     df19.groupBy("product").count().sort(desc("count")).show
-    println(s"${YELLOW}Disclaimer: Due to the ambiguity of the conscount data, total consumers for each branch cannot be calculated because the same beverage can come from more than one branch, and the proportion of that beverage consumption from a certain branch is unknown.${RESET}" )
+    println(s"${YELLOW}Comment: Due to the ambiguity of the conscount data, total consumers for each branch cannot be calculated because the same beverage can come from more than one branch, and the proportion of that beverage consumption from a certain branch is unknown.${RESET}" )
     println(s"${GREEN}Conclusion: The branch7 sells the most types of beverages and branch1 sells the least types of beverages.${RESET}")
     df20.write.option("header","true").csv("output/scenario6b")
+    readLine("Press ENTER key to continue...")
 
   }
 
@@ -140,35 +155,28 @@ def scenario1:Unit={
       println(s"\nPlease select scenario below:")
       println("Press 1 for Problem Scenario 1\nWhat is the total number of consumers for Branch1?.")
       println("What is the number of consumers for the Branch2?")
-      println("Press 2 for Problem Scenario 2\nWhat is the most consumed beverage on Branch1")
+      println("\nPress 2 for Problem Scenario 2\nWhat is the most consumed beverage on Branch1")
       println("What is the least consumed beverage on Branch2")
       println("What is the Average consumed beverage of Branch2")
-      println("Press 3 for Problem Scenario 3\nWhat are the beverages available on Branch10, Branch8, and Branch1?")
+      println("\nPress 3 for Problem Scenario 3\nWhat are the beverages available on Branch10, Branch8, and Branch1?")
       println("What are the comman beverages available in Branch4,Branch7?")
-      println("Press 4 for Problem Scenario 4\nCreate a partition,View for the scenario3.")
-      println("Press 5 for Problem Scenario 5")
+      println("\nPress 4 for Problem Scenario 4\nCreate a partition,View for the scenario3.")
+      println("\nPress 5 for Problem Scenario 5")
       println("""Alter the table properties to add "note","comment"""")
       println("Remove a row from the any Scenario.")
-      println("Press 6 for Problem Scenario 6a\nAdd future query")
-      println("Press 7 for Problem Scenario 6b\nAdd future query")
+      println("\nPress 6 for Problem Scenario 6a\nAdd future query")
+      println("\nPress 7 for Problem Scenario 6b\nAdd future query")
 
-      println("Press 8 to end")
+      println("\nPress 8 to end")
       var i = readLine().toInt
       i match {
         case 1 =>scenario1
-          Thread.sleep(5000)
         case 2 =>scenario2
-          Thread.sleep(5000)
         case 3 =>scenario3
-          Thread.sleep(5000)
         case 4 =>scenario4
-          Thread.sleep(5000)
         case 5 =>scenario5
-          Thread.sleep(5000)
         case 6 =>scenario6a
-          Thread.sleep(5000)
         case 7 =>scenario6b
-          Thread.sleep(5000)
 
         case 8 => loop1 = 0
           println(f"${YELLOW_B}${BLACK}Thanks for using this program, good bye!${RESET}")

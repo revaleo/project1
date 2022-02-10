@@ -1,9 +1,7 @@
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql.SparkSession
 object test {
   def main(args : Array[String]): Unit ={
-    Logger.getRootLogger.setLevel(Level.INFO)
     System.setProperty("hadoop.home.dir", "c:/winutils")
     val sc = new SparkContext("local[*]" , "SparkDemo")
     val lines = sc.textFile("src/main/resources/input/bev_brancha.txt")
