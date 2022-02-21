@@ -1,4 +1,4 @@
-# project#1-Coffee Shot Data Analysis
+# project#1-Coffee Shop Data Analysis
 
 ## Project Description
 This project is an individual project from Revature that involves analyzing 3 given datasets about a mock coffee shop sales data, branches and available beverages. Spark and Hive are used to query the data in order to give answers to a few statistical questions. A prediction/pattern was also tasked to be found from the data.
@@ -22,7 +22,7 @@ To-do list:
 ## Getting Started
    
 Environment: Java 8 or 11, scala 2.1x.8, spark 2.0 or above, Hive are required
-Download https://github.com/revaleo/project1.git for source code as below:
+Download source code as below:
 in IntelliJ, File->New->Project from version control->https://github.com/revaleo/project1.git
 
 
